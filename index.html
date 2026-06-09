@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta
+      name="description"
+      content="钉钉扫码即可打开的数据点击小游戏，顶部计数、中部点击按钮、点击时弹出 DAU、DATA、DW 等术语。"
+    />
+    <title>数据点击器 | 钉钉扫码即玩</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg-1: #07111f;
+        --bg-2: #0c1b33;
+        --bg-3: #17345e;
+        --panel: rgba(10, 18, 35, 0.72);
+        --panel-border: rgba(140, 183, 255, 0.18);
+        --text: #eef4ff;
+        --muted: rgba(238, 244, 255, 0.72);
+        --accent: #76d6ff;
+        --accent-2: #7bffcc;
+        --shadow: rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(118, 214, 255, 0.22), transparent 35%),
+          radial-gradient(circle at 20% 20%, rgba(123, 255, 204, 0.12), transparent 28%),
+          linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+        color: var(--text);
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: auto;
+        border-radius: 999px;
+        pointer-events: none;
+        filter: blur(8px);
+        opacity: 0.55;
+      }
+
+      body::before {
+        width: 240px;
+        height: 240px;
+        left: -90px;
+        top: -60px;
+        background: radial-gradient(circle, rgba(118, 214, 255, 0.22), transparent 70%);
+      }
+
+      body::after {
+        width: 320px;
+        height: 320px;
+        right: -120px;
+        bottom: -100px;
+        background: radial-gradient(circle, rgba(123, 255, 204, 0.16), transparent 72%);
+      }
+
+      .app {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 22px);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .title-block {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.1;
+        font-weight: 800;
+      }
+
+      .counter-card {
+        min-width: 120px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        box-shadow: 0 10px 40px var(--shadow);
+        backdrop-filter: blur(18px);
+        text-align: right;
+      }
+
+      .counter-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+
+      .counter-value {
+        font-size: 34px;
+        line-height: 1;
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow: 0 8px 24px rgba(118, 214, 255, 0.28);
+      }
+
+      .stage {
+        position: relative;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 0;
+      }
+
+      .hint {
+        position: absolute;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(8, 14, 28, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--muted);
+        font-size: 13px;
+        white-space: nowrap;
+        user-select: none;
+      }
+
+      .term-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .term {
+        position: absolute;
+        left: 50%;
+        top: 48%;
+        transform: translate(-50%, -50%) scale(0.86);
+        padding: 10px 16px;
+        border-radius: 999px;
+        color: #f7fbff;
+        background: linear-gradient(135deg, rgba(118, 214, 255, 0.18), rgba(123, 255, 204, 0.16));
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        opacity: 0;
+        animation: floatUp 1200ms ease-out forwards;
+        user-select: none;
+        will-change: transform, opacity;
+      }
+
+      .term small {
+        display: block;
+        margin-top: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+        letter-spacing: 0;
+      }
+
+      .button-zone {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 16px;
+      }
+
+      .tap-button {
+        width: min(78vw, 320px);
+        aspect-ratio: 1 / 1;
+        border: none;
+        border-radius: 30px;
+        background:
+          radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.28), transparent 30%),
+          linear-gradient(180deg, #58d9ff, #1e97ff 55%, #1152d4);
+        color: white;
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        box-shadow:
+          0 24px 50px rgba(0, 0, 0, 0.35),
+          inset 0 1px 0 rgba(255, 255, 255, 0.32),
+          inset 0 -18px 30px rgba(0, 0, 0, 0.16);
+        transform: translateZ(0);
+        transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+      }
+
+      .tap-button:active {
+        transform: scale(0.97);
+        filter: brightness(1.03);
+        box-shadow:
+          0 18px 36px rgba(0, 0, 0, 0.34),
+          inset 0 1px 0 rgba(255, 255, 255, 0.28),
+          inset 0 -14px 24px rgba(0, 0, 0, 0.14);
+      }
+
+      .tap-button .subtitle {
+        display: block;
+        margin-top: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: rgba(255, 255, 255, 0.88);
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .chip {
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(9, 16, 31, 0.38);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(14px);
+      }
+
+      @keyframes floatUp {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -20%) scale(0.78);
+          filter: blur(1px);
+        }
+        18% {
+          opacity: 1;
+          transform: translate(calc(-50% + var(--x, 0px)), calc(-50% + var(--y, 0px))) scale(1);
+          filter: blur(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(calc(-50% + var(--x, 0px)), calc(-50% - 92px + var(--y, 0px))) scale(1.08);
+          filter: blur(0.3px);
+        }
+      }
+
+      .pulse {
+        animation: pulse 260ms ease-out;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.03); }
+        100% { transform: scale(1); }
+      }
+
+      @media (max-width: 420px) {
+        .topbar {
+          align-items: flex-start;
+        }
+
+        h1 {
+          font-size: 20px;
+        }
+
+        .counter-card {
+          min-width: 110px;
+          padding: 12px 14px;
+        }
+
+        .counter-value {
+          font-size: 30px;
+        }
+
+        .tap-button {
+          font-size: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="title-block">
+          <div class="eyebrow">SCAN · TAP · COUNT</div>
+          <h1>钉钉扫码即玩的数据点击器</h1>
+        </div>
+        <div class="counter-card" aria-live="polite">
+          <div class="counter-label">累计点击</div>
+          <div id="counter" class="counter-value">0</div>
+        </div>
+      </header>
+
+      <section class="stage" aria-label="点击游戏区域">
+        <div class="hint">扫码打开后直接开点，术语会在中间浮现</div>
+        <div id="termLayer" class="term-layer" aria-hidden="true"></div>
+      </section>
+
+      <section class="button-zone">
+        <button id="tapButton" class="tap-button" type="button">
+          点击
+          <span class="subtitle">Tap to count</span>
+        </button>
+      </section>
+
+      <footer class="footer">
+        <div class="chip">适合钉钉扫码打开</div>
+        <div class="chip">术语库：DAU / DATA / DW / ETL / BI / SQL</div>
+      </footer>
+    </main>
+
+    <script>
+      const counterEl = document.getElementById("counter");
+      const tapButton = document.getElementById("tapButton");
+      const termLayer = document.getElementById("termLayer");
+
+      let count = 0;
+
+      const terms = [
+        { label: "DAU", meaning: "Daily Active Users" },
+        { label: "DATA", meaning: "数据资产" },
+        { label: "DW", meaning: "Data Warehouse" },
+        { label: "ETL", meaning: "抽取 · 转换 · 加载" },
+        { label: "BI", meaning: "Business Intelligence" },
+        { label: "SQL", meaning: "结构化查询语言" },
+        { label: "OLAP", meaning: "联机分析处理" },
+        { label: "KPI", meaning: "关键绩效指标" },
+        { label: "MAU", meaning: "Monthly Active Users" },
+        { label: "RFM", meaning: "最近消费 · 消费频次 · 消费金额" },
+        { label: "AARRR", meaning: "增长漏斗模型" },
+        { label: "CDP", meaning: "客户数据平台" },
+      ];
+
+      function updateCounter() {
+        counterEl.textContent = String(count);
+        counterEl.classList.remove("pulse");
+        void counterEl.offsetWidth;
+        counterEl.classList.add("pulse");
+      }
+
+      function spawnTerm() {
+        const term = terms[Math.floor(Math.random() * terms.length)];
+        const node = document.createElement("div");
+        node.className = "term";
+
+        const x = (Math.random() * 56 - 28).toFixed(1) + "px";
+        const y = (Math.random() * 18 - 9).toFixed(1) + "px";
+        node.style.setProperty("--x", x);
+        node.style.setProperty("--y", y);
+        node.innerHTML = `${term.label}<small>${term.meaning}</small>`;
+
+        termLayer.appendChild(node);
+        setTimeout(() => node.remove(), 1250);
+      }
+
+      tapButton.addEventListener("click", () => {
+        count += 1;
+        updateCounter();
+        spawnTerm();
+      });
+
+      tapButton.addEventListener("pointerdown", () => {
+        tapButton.setAttribute("aria-pressed", "true");
+      });
+
+      tapButton.addEventListener("pointerup", () => {
+        tapButton.setAttribute("aria-pressed", "false");
+      });
+
+      tapButton.addEventListener("pointercancel", () => {
+        tapButton.setAttribute("aria-pressed", "false");
+      });
+    </script>
+  </body>
+</html>
