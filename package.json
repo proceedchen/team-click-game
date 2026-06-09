@@ -1,0 +1,26 @@
+{
+  "name": "team-click-game",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build"
+  },
+  "description": "一个适合钉钉扫码打开的 H5 点击小游戏：顶部显示累计点击数，中部偏下是大按钮，点击后会在屏幕中间弹出数据相关术语。",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/proceedchen/team-click-game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/proceedchen/team-click-game/issues"
+  },
+  "homepage": "https://github.com/proceedchen/team-click-game#readme",
+  "dependencies": {
+    "@upstash/redis": "^1.38.0"
+  }
+}

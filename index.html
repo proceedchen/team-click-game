@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#0b1020" />
     <meta
       name="description"
-      content="钉钉扫码即可打开的数据点击小游戏，顶部计数、中部点击按钮、点击时弹出 DAU、DATA、DW 等术语。"
+      content="钉钉扫码即可打开的数据点击小游戏，1分钟限时挑战！"
     />
-    <title>数据点击器 | 钉钉扫码即玩</title>
+    <title>数据点击器 | 1分钟挑战</title>
     <style>
       :root {
         color-scheme: dark;
@@ -80,6 +80,16 @@
         padding: calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 22px);
       }
 
+      .page {
+        display: none;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .page.active {
+        display: flex;
+      }
+
       .topbar {
         display: flex;
         align-items: center;
@@ -107,29 +117,37 @@
         font-weight: 800;
       }
 
-      .counter-card {
-        min-width: 120px;
+      .timer-card {
+        min-width: 100px;
         padding: 14px 16px;
         border-radius: 18px;
         background: var(--panel);
         border: 1px solid var(--panel-border);
         box-shadow: 0 10px 40px var(--shadow);
         backdrop-filter: blur(18px);
-        text-align: right;
+        text-align: center;
       }
 
-      .counter-label {
+      .timer-label {
         font-size: 12px;
         color: var(--muted);
         margin-bottom: 4px;
       }
 
-      .counter-value {
-        font-size: 34px;
+      .timer-value {
+        font-size: 32px;
         line-height: 1;
         font-weight: 900;
         color: #ffffff;
-        text-shadow: 0 8px 24px rgba(118, 214, 255, 0.28);
+      }
+
+      .timer-value.warning {
+        color: #ff6b6b;
+        animation: blink 500ms infinite;
+      }
+
+      @keyframes blink {
+        50% { opacity: 0.5; }
       }
 
       .stage {
@@ -139,21 +157,6 @@
         align-items: center;
         justify-content: center;
         min-height: 0;
-      }
-
-      .hint {
-        position: absolute;
-        top: 10%;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 10px 14px;
-        border-radius: 999px;
-        background: rgba(8, 14, 28, 0.45);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: var(--muted);
-        font-size: 13px;
-        white-space: nowrap;
-        user-select: none;
       }
 
       .term-layer {
@@ -227,6 +230,11 @@
           inset 0 -14px 24px rgba(0, 0, 0, 0.14);
       }
 
+      .tap-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       .tap-button .subtitle {
         display: block;
         margin-top: 10px;
@@ -281,67 +289,226 @@
         100% { transform: scale(1); }
       }
 
+      /* Start Page */
+      .start-page {
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 40px;
+      }
+
+      .start-page h1 {
+        font-size: 32px;
+      }
+
+      .start-page .desc {
+        color: var(--muted);
+        font-size: 16px;
+        max-width: 280px;
+      }
+
+      .start-button {
+        padding: 20px 60px;
+        font-size: 22px;
+        font-weight: 800;
+        border: none;
+        border-radius: 60px;
+        background: linear-gradient(135deg, #58d9ff, #1e97ff);
+        color: white;
+        box-shadow: 0 10px 40px rgba(30, 151, 255, 0.4);
+        cursor: pointer;
+        transition: transform 200ms ease, box-shadow 200ms ease;
+      }
+
+      .start-button:active {
+        transform: scale(0.95);
+      }
+
+      /* Result Page */
+      .result-page {
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 30px;
+      }
+
+      .result-page h1 {
+        font-size: 28px;
+      }
+
+      .score-display {
+        padding: 30px 50px;
+        border-radius: 24px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        box-shadow: 0 10px 40px var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .score-label {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .score-value {
+        font-size: 64px;
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow: 0 8px 24px rgba(118, 214, 255, 0.28);
+      }
+
+      .leaderboard {
+        width: 100%;
+        max-width: 320px;
+        padding: 20px;
+        border-radius: 20px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+      }
+
+      .leaderboard h3 {
+        margin: 0 0 16px;
+        font-size: 16px;
+        color: var(--muted);
+      }
+
+      .leaderboard-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .leaderboard-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 15px;
+      }
+
+      .leaderboard-item:last-child {
+        border-bottom: none;
+      }
+
+      .leaderboard-item .rank {
+        color: var(--accent);
+        font-weight: 700;
+        width: 30px;
+      }
+
+      .leaderboard-item .score {
+        font-weight: 700;
+        color: var(--accent-2);
+      }
+
+      .restart-button {
+        padding: 16px 48px;
+        font-size: 18px;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #7bffcc, #58d9ff);
+        color: #07111f;
+        cursor: pointer;
+        box-shadow: 0 8px 30px rgba(123, 255, 204, 0.3);
+        transition: transform 200ms ease;
+      }
+
+      .restart-button:active {
+        transform: scale(0.95);
+      }
+
       @media (max-width: 420px) {
-        .topbar {
-          align-items: flex-start;
-        }
-
-        h1 {
-          font-size: 20px;
-        }
-
-        .counter-card {
-          min-width: 110px;
-          padding: 12px 14px;
-        }
-
-        .counter-value {
-          font-size: 30px;
-        }
-
-        .tap-button {
-          font-size: 24px;
-        }
+        h1 { font-size: 20px; }
+        .timer-value { font-size: 28px; }
+        .tap-button { font-size: 24px; }
+        .start-page h1 { font-size: 26px; }
+        .score-value { font-size: 48px; }
       }
     </style>
   </head>
   <body>
     <main class="app">
-      <header class="topbar">
-        <div class="title-block">
-          <div class="eyebrow">SCAN · TAP · COUNT</div>
-          <h1>钉钉扫码即玩的数据点击器</h1>
+      <!-- 开始页面 -->
+      <section id="startPage" class="page start-page active">
+        <div>
+          <h1>数据点击器</h1>
+          <p class="desc">1分钟内点击按钮<br/>看看你能点多少次？</p>
         </div>
-        <div class="counter-card" aria-live="polite">
-          <div class="counter-label">累计点击</div>
-          <div id="counter" class="counter-value">0</div>
-        </div>
-      </header>
-
-      <section class="stage" aria-label="点击游戏区域">
-        <div class="hint">扫码打开后直接开点，术语会在中间浮现</div>
-        <div id="termLayer" class="term-layer" aria-hidden="true"></div>
-      </section>
-
-      <section class="button-zone">
-        <button id="tapButton" class="tap-button" type="button">
-          点击
-          <span class="subtitle">Tap to count</span>
-        </button>
-      </section>
-
-      <footer class="footer">
+        <button id="startButton" class="start-button" type="button">开始挑战</button>
         <div class="chip">适合钉钉扫码打开</div>
-        <div class="chip">术语库：DAU / DATA / DW / ETL / BI / SQL</div>
-      </footer>
+      </section>
+
+      <!-- 游戏页面 -->
+      <section id="gamePage" class="page game-page">
+        <header class="topbar">
+          <div class="title-block">
+            <div class="eyebrow">SCAN · TAP · COUNT</div>
+            <h1>数据点击器</h1>
+          </div>
+          <div class="timer-card" aria-live="polite">
+            <div class="timer-label">剩余时间</div>
+            <div id="timer" class="timer-value">60</div>
+          </div>
+        </header>
+
+        <section class="stage" aria-label="点击游戏区域">
+          <div id="termLayer" class="term-layer" aria-hidden="true"></div>
+        </section>
+
+        <section class="button-zone">
+          <button id="tapButton" class="tap-button" type="button">
+            点击
+            <span class="subtitle">Tap to count</span>
+          </button>
+        </section>
+
+        <footer class="footer">
+          <div class="chip">当前点击</div>
+          <div id="counter" class="chip">0</div>
+        </footer>
+      </section>
+
+      <!-- 结果页面 -->
+      <section id="resultPage" class="page result-page">
+        <h1>挑战结束！</h1>
+
+        <div class="score-display">
+          <div class="score-label">你的点击次数</div>
+          <div id="finalScore" class="score-value">0</div>
+        </div>
+
+        <div class="leaderboard">
+          <h3>🏆 排行榜 TOP10</h3>
+          <ul id="leaderboardList" class="leaderboard-list">
+            <li class="leaderboard-item"><span class="rank">-</span><span>加载中...</span></li>
+          </ul>
+        </div>
+
+        <button id="restartButton" class="restart-button" type="button">再来一次</button>
+      </section>
     </main>
 
     <script>
-      const counterEl = document.getElementById("counter");
-      const tapButton = document.getElementById("tapButton");
-      const termLayer = document.getElementById("termLayer");
+      // DOM 元素
+      const startPage = document.getElementById('startPage');
+      const gamePage = document.getElementById('gamePage');
+      const resultPage = document.getElementById('resultPage');
+      const startButton = document.getElementById('startButton');
+      const tapButton = document.getElementById('tapButton');
+      const restartButton = document.getElementById('restartButton');
+      const timerEl = document.getElementById('timer');
+      const counterEl = document.getElementById('counter');
+      const termLayer = document.getElementById('termLayer');
+      const finalScoreEl = document.getElementById('finalScore');
+      const leaderboardList = document.getElementById('leaderboardList');
 
+      // 游戏状态
       let count = 0;
+      let timeLeft = 60;
+      let timerInterval = null;
+      let gameActive = false;
 
       const terms = [
         { label: "DAU", meaning: "Daily Active Users" },
@@ -353,49 +520,149 @@
         { label: "OLAP", meaning: "联机分析处理" },
         { label: "KPI", meaning: "关键绩效指标" },
         { label: "MAU", meaning: "Monthly Active Users" },
-        { label: "RFM", meaning: "最近消费 · 消费频次 · 消费金额" },
+        { label: "RFM", meaning: "最近消费 · 频次 · 金额" },
         { label: "AARRR", meaning: "增长漏斗模型" },
         { label: "CDP", meaning: "客户数据平台" },
       ];
 
-      function updateCounter() {
-        counterEl.textContent = String(count);
-        counterEl.classList.remove("pulse");
-        void counterEl.offsetWidth;
-        counterEl.classList.add("pulse");
+      // 页面切换
+      function showPage(page) {
+        startPage.classList.remove('active');
+        gamePage.classList.remove('active');
+        resultPage.classList.remove('active');
+        page.classList.add('active');
       }
 
+      // 开始游戏
+      function startGame() {
+        count = 0;
+        timeLeft = 60;
+        gameActive = true;
+
+        counterEl.textContent = '0';
+        timerEl.textContent = '60';
+        timerEl.classList.remove('warning');
+
+        showPage(gamePage);
+
+        // 倒计时
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          timerEl.textContent = timeLeft;
+
+          if (timeLeft <= 10) {
+            timerEl.classList.add('warning');
+          }
+
+          if (timeLeft <= 0) {
+            endGame();
+          }
+        }, 1000);
+      }
+
+      // 结束游戏
+      function endGame() {
+        gameActive = false;
+        clearInterval(timerInterval);
+        tapButton.disabled = true;
+
+        finalScoreEl.textContent = count;
+
+        // 提交分数
+        submitScore(count);
+
+        // 获取排行榜
+        loadLeaderboard();
+
+        showPage(resultPage);
+      }
+
+      // 提交分数
+      async function submitScore(score) {
+        try {
+          await fetch('/api/submit-score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ score })
+          });
+        } catch (e) {
+          console.error('提交分数失败:', e);
+        }
+      }
+
+      // 加载排行榜
+      async function loadLeaderboard() {
+        try {
+          const res = await fetch('/api/leaderboard');
+          const data = await res.json();
+
+          if (data.leaderboard && data.leaderboard.length > 0) {
+            leaderboardList.innerHTML = data.leaderboard.map((item, idx) => `
+              <li class="leaderboard-item">
+                <span class="rank">${idx + 1}</span>
+                <span class="score">${item.score} 次</span>
+              </li>
+            `).join('');
+          } else {
+            leaderboardList.innerHTML = '<li class="leaderboard-item"><span>-</span><span>暂无数据</span></li>';
+          }
+        } catch (e) {
+          console.error('加载排行榜失败:', e);
+          leaderboardList.innerHTML = '<li class="leaderboard-item"><span>-</span><span>加载失败</span></li>';
+        }
+      }
+
+      // 重新开始
+      function restartGame() {
+        tapButton.disabled = false;
+        startGame();
+      }
+
+      // 更新计数器
+      function updateCounter() {
+        counterEl.textContent = String(count);
+        counterEl.classList.remove('pulse');
+        void counterEl.offsetWidth;
+        counterEl.classList.add('pulse');
+      }
+
+      // 显示术语
       function spawnTerm() {
         const term = terms[Math.floor(Math.random() * terms.length)];
-        const node = document.createElement("div");
-        node.className = "term";
+        const node = document.createElement('div');
+        node.className = 'term';
 
-        const x = (Math.random() * 56 - 28).toFixed(1) + "px";
-        const y = (Math.random() * 18 - 9).toFixed(1) + "px";
-        node.style.setProperty("--x", x);
-        node.style.setProperty("--y", y);
+        const x = (Math.random() * 56 - 28).toFixed(1) + 'px';
+        const y = (Math.random() * 18 - 9).toFixed(1) + 'px';
+        node.style.setProperty('--x', x);
+        node.style.setProperty('--y', y);
         node.innerHTML = `${term.label}<small>${term.meaning}</small>`;
 
         termLayer.appendChild(node);
         setTimeout(() => node.remove(), 1250);
       }
 
-      tapButton.addEventListener("click", () => {
-        count += 1;
+      // 事件监听
+      startButton.addEventListener('click', startGame);
+      restartButton.addEventListener('click', restartGame);
+
+      tapButton.addEventListener('click', () => {
+        if (!gameActive) return;
+        count++;
         updateCounter();
         spawnTerm();
       });
 
-      tapButton.addEventListener("pointerdown", () => {
-        tapButton.setAttribute("aria-pressed", "true");
+      tapButton.addEventListener('pointerdown', () => {
+        tapButton.setAttribute('aria-pressed', 'true');
       });
 
-      tapButton.addEventListener("pointerup", () => {
-        tapButton.setAttribute("aria-pressed", "false");
+      tapButton.addEventListener('pointerup', () => {
+        tapButton.setAttribute('aria-pressed', 'false');
       });
 
-      tapButton.addEventListener("pointercancel", () => {
-        tapButton.setAttribute("aria-pressed", "false");
+      tapButton.addEventListener('pointercancel', () => {
+        tapButton.setAttribute('aria-pressed', 'false');
       });
     </script>
   </body>
