@@ -227,6 +227,23 @@
       .player.eat {
         animation: eatBounce 0.3s ease;
       }
+
+      /* 跳舞动画 */
+      @keyframes dance {
+        0%, 100% { transform: translate(-50%, 50%) rotate(-5deg); }
+        50% { transform: translate(-50%, 50%) rotate(5deg); }
+      }
+      .player.dancing {
+        animation: dance 0.4s ease infinite;
+      }
+
+      /* 移动动画 */
+      .player.moving-left {
+        transform: translate(-50%, 50%) scaleX(-1);
+      }
+      .player.moving-right {
+        transform: translate(-50%, 50%) scaleX(1);
+      }
       @keyframes eatBounce {
         0%, 100% { transform: translateX(-50%) scale(1); }
         50% { transform: translateX(-50%) scale(1.2); }
@@ -462,6 +479,30 @@
       // 按键状态
       const keysPressed = {};
 
+      // 跳舞帧动画
+      const danceFrames = ['💃', '💃', '💃'];
+      let danceFrameIndex = 0;
+      let danceInterval = null;
+
+      // 开始跳舞动画
+      function startDancing() {
+        if (danceInterval) return;
+        danceInterval = setInterval(() => {
+          if (gameActive) {
+            playerEl.textContent = danceFrames[danceFrameIndex % 3];
+            danceFrameIndex++;
+          }
+        }, 200);
+      }
+
+      // 停止跳舞动画
+      function stopDancing() {
+        if (danceInterval) {
+          clearInterval(danceInterval);
+          danceInterval = null;
+        }
+      }
+
       // 页面切换
       function showPage(page) {
         startPage.classList.remove('active');
@@ -581,15 +622,15 @@
           const heightPercent = ((playerHeight - MIN_HEIGHT) / (MAX_HEIGHT - MIN_HEIGHT)) * 100;
           heightFill.style.height = heightPercent + '%';
 
-          // 根据高度改变表情
+          // 根据高度改变表情，小女孩形象
           if (playerHeight < 30) {
-            playerEl.textContent = '😐';
+            playerEl.textContent = '👧';
           } else if (playerHeight < 50) {
-            playerEl.textContent = '🙂';
+            playerEl.textContent = '👧';
           } else if (playerHeight < 70) {
-            playerEl.textContent = '😄';
+            playerEl.textContent = '👧‍♀️';
           } else {
-            playerEl.textContent = '😎';
+            playerEl.textContent = '👩';
           }
         }
 
@@ -676,8 +717,9 @@
         playerEl.style.top = playerY + '%';
         playerEl.style.height = playerHeight + '%';
         playerEl.style.bottom = 'auto';
-        playerEl.style.transform = 'translate(-50%, 50%)';
-        playerEl.textContent = '😐';
+        playerEl.style.transform = 'translate(-50%, 50%) scaleX(-1)';
+        playerEl.textContent = '💃';
+        playerEl.classList.add('dancing');
 
         // 重置高度指示条
         heightFill.style.height = '10%';
