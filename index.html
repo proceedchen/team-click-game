@@ -216,12 +216,11 @@
       /* Player */
       .player {
         position: absolute;
-        bottom: 0;
         left: 50%;
         transform: translateX(-50%);
         font-size: 30px;
         line-height: 1;
-        transition: bottom 0.15s ease, height 0.3s ease;
+        transition: top 0.15s ease, height 0.3s ease;
         display: flex;
         align-items: flex-end;
       }
@@ -446,12 +445,15 @@
       let timeLeft = 10;
       let timerInterval = null;
       let gameActive = false;
-      let playerX = 50; // 百分比
+      let playerX = 50; // 百分比（左右）
+      let playerY = 80; // 百分比（上下，0是顶部）
       let playerHeight = 15; // 百分比，最小高度
       const MIN_HEIGHT = 15;
       const MAX_HEIGHT = 90;
       const MOVE_SPEED = 4;
+      const MOVE_SPEED_Y = 5;
       const HEIGHT_INCREMENT = 8;
+      const GROUND_Y = 85; // 地面位置（百分比）
 
       // 苹果数组
       let apples = [];
@@ -572,6 +574,8 @@
         if (playerHeight < MAX_HEIGHT) {
           playerHeight = Math.min(playerHeight + HEIGHT_INCREMENT, MAX_HEIGHT);
           playerEl.style.height = playerHeight + '%';
+          // 更新垂直位置（基于底部）
+          playerEl.style.top = (GROUND_Y - playerHeight / 2) + '%';
 
           // 更新高度指示条
           const heightPercent = ((playerHeight - MIN_HEIGHT) / (MAX_HEIGHT - MIN_HEIGHT)) * 100;
@@ -602,16 +606,27 @@
         if (!gameActive) return;
 
         const gameAreaRect = gameArea.getBoundingClientRect();
-        const moveAmount = (MOVE_SPEED / gameAreaRect.width) * 100;
+        const moveAmountX = (MOVE_SPEED / gameAreaRect.width) * 100;
+        const moveAmountY = (MOVE_SPEED_Y / gameAreaRect.height) * 100;
 
-        if (keysPressed['ArrowLeft'] || keysPressed['a']) {
-          playerX = Math.max(moveAmount, playerX - moveAmount);
+        // 左右移动
+        if (keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['A']) {
+          playerX = Math.max(moveAmountX, playerX - moveAmountX);
         }
-        if (keysPressed['ArrowRight'] || keysPressed['d']) {
-          playerX = Math.min(100 - moveAmount, playerX + moveAmount);
+        if (keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['D']) {
+          playerX = Math.min(100 - moveAmountX, playerX + moveAmountX);
+        }
+
+        // 上下移动
+        if (keysPressed['ArrowUp'] || keysPressed['w'] || keysPressed['W']) {
+          playerY = Math.max(moveAmountY + playerHeight/2, playerY - moveAmountY);
+        }
+        if (keysPressed['ArrowDown'] || keysPressed['s'] || keysPressed['S']) {
+          playerY = Math.min(GROUND_Y - playerHeight/2, playerY + moveAmountY);
         }
 
         playerEl.style.left = playerX + '%';
+        playerEl.style.top = playerY + '%';
       }
 
       // 游戏循环
@@ -649,6 +664,7 @@
         timeLeft = 10;
         gameActive = true;
         playerX = 50;
+        playerY = GROUND_Y - playerHeight / 2;
         playerHeight = MIN_HEIGHT;
 
         counterEl.textContent = '0';
@@ -657,8 +673,10 @@
 
         // 重置角色
         playerEl.style.left = '50%';
+        playerEl.style.top = playerY + '%';
         playerEl.style.height = playerHeight + '%';
-        playerEl.style.transform = 'translateX(-50%)';
+        playerEl.style.bottom = 'auto';
+        playerEl.style.transform = 'translate(-50%, 50%)';
         playerEl.textContent = '😐';
 
         // 重置高度指示条
@@ -769,6 +787,8 @@
         // 根据滑动方向设置按键状态
         keysPressed['ArrowLeft'] = dx < -20;
         keysPressed['ArrowRight'] = dx > 20;
+        keysPressed['ArrowUp'] = dy < -20;
+        keysPressed['ArrowDown'] = dy > 20;
 
         e.preventDefault();
       }, { passive: false });
@@ -777,6 +797,8 @@
         // 清除所有移动按键
         delete keysPressed['ArrowLeft'];
         delete keysPressed['ArrowRight'];
+        delete keysPressed['ArrowUp'];
+        delete keysPressed['ArrowDown'];
 
         // 检测点击位置是否有苹果（触摸点击）
         if (!gameActive) return;
