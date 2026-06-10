@@ -1,29 +1,35 @@
-import { Redis } from '@upstash/redis';
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
-
-export const runtime = 'edge';
+const UPSTASH_URL = 'https://rare-krill-145916.upstash.io';
+const UPSTASH_TOKEN = 'gQAAAAAAAjn8AAIgcDE3ZmEzNDM4YjY3YTg0Y2QyOWE3OGM1MmU2NWY2N2IxOA';
 
 export async function GET() {
   try {
-    // 按分数降序排列获取前10
-    const leaderboard = await redis.zrevrange('leaderboard', 0, 9, { withScores: true });
+    // 直接使用 REST API 调用
+    const response = await fetch(UPSTASH_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': UPSTASH_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(['ZREVRANGE', 'leaderboard', '0', '9', 'WITHSCORES'])
+    });
 
-    // 转换为数组格式
+    const data = await response.json();
+    console.log('Redis response:', data);
+
+    // 解析结果
     const result = [];
-    for (let i = 0; i < leaderboard.length; i += 2) {
-      result.push({
-        id: leaderboard[i],
-        score: Number(leaderboard[i + 1])
-      });
+    if (data.result && Array.isArray(data.result)) {
+      for (let i = 0; i < data.result.length; i += 2) {
+        result.push({
+          nickname: data.result[i],
+          score: Number(data.result[i + 1])
+        });
+      }
     }
 
     return Response.json({ leaderboard: result });
   } catch (error) {
     console.error('Error:', error);
-    return Response.json({ leaderboard: [] }, { status: 500 });
+    return Response.json({ error: error.message, leaderboard: [] }, { status: 500 });
   }
 }

@@ -1,310 +1,98 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b1020" />
-    <meta
-      name="description"
-      content="钉钉扫码即可打开的数据点击小游戏，1分钟限时挑战！"
-    />
-    <title>数据点击器 | 1分钟挑战</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>数据跳舞机</title>
     <style>
       :root {
-        color-scheme: dark;
-        --bg-1: #07111f;
-        --bg-2: #0c1b33;
-        --bg-3: #17345e;
-        --panel: rgba(10, 18, 35, 0.72);
-        --panel-border: rgba(140, 183, 255, 0.18);
-        --text: #eef4ff;
-        --muted: rgba(238, 244, 255, 0.72);
-        --accent: #76d6ff;
+        --bg-0: #07111f;
+        --bg-1: #0d1929;
+        --bg-2: #162336;
+        --bg-3: #1d2e44;
+        --text: #ffffff;
+        --text-dim: #7489a6;
+        --accent: #58d9ff;
         --accent-2: #7bffcc;
-        --shadow: rgba(0, 0, 0, 0.35);
+        --panel: rgba(22, 35, 54, 0.8);
+        --panel-border: rgba(88, 217, 255, 0.15);
+        --shadow: rgba(0, 0, 0, 0.3);
       }
 
-      * {
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
 
-      html,
       body {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-        background:
-          radial-gradient(circle at top, rgba(118, 214, 255, 0.22), transparent 35%),
-          radial-gradient(circle at 20% 20%, rgba(123, 255, 204, 0.12), transparent 28%),
-          linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
         color: var(--text);
-      }
-
-      body::before,
-      body::after {
-        content: "";
-        position: fixed;
-        inset: auto;
-        border-radius: 999px;
-        pointer-events: none;
-        filter: blur(8px);
-        opacity: 0.55;
-      }
-
-      body::before {
-        width: 240px;
-        height: 240px;
-        left: -90px;
-        top: -60px;
-        background: radial-gradient(circle, rgba(118, 214, 255, 0.22), transparent 70%);
-      }
-
-      body::after {
-        width: 320px;
-        height: 320px;
-        right: -120px;
-        bottom: -100px;
-        background: radial-gradient(circle, rgba(123, 255, 204, 0.16), transparent 72%);
+        min-height: 100vh;
+        overflow: hidden;
+        user-select: none;
+        -webkit-user-select: none;
       }
 
       .app {
-        position: relative;
-        width: 100%;
-        height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        padding: calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 22px);
+        min-height: 100vh;
+        position: relative;
       }
 
       .page {
-        display: none;
+        position: absolute;
+        inset: 0;
+        display: flex;
         flex-direction: column;
-        height: 100%;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 300ms ease, visibility 300ms ease;
       }
 
       .page.active {
-        display: flex;
-      }
-
-      .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-      }
-
-      .title-block {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-
-      .eyebrow {
-        font-size: 12px;
-        letter-spacing: 0.24em;
-        text-transform: uppercase;
-        color: var(--muted);
+        opacity: 1;
+        visibility: visible;
       }
 
       h1 {
-        margin: 0;
-        font-size: 22px;
-        line-height: 1.1;
-        font-weight: 800;
-      }
-
-      .timer-card {
-        min-width: 100px;
-        padding: 14px 16px;
-        border-radius: 18px;
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        box-shadow: 0 10px 40px var(--shadow);
-        backdrop-filter: blur(18px);
-        text-align: center;
-      }
-
-      .timer-label {
-        font-size: 12px;
-        color: var(--muted);
-        margin-bottom: 4px;
-      }
-
-      .timer-value {
         font-size: 32px;
-        line-height: 1;
         font-weight: 900;
-        color: #ffffff;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
-      .timer-value.warning {
-        color: #ff6b6b;
-        animation: blink 500ms infinite;
-      }
-
-      @keyframes blink {
-        50% { opacity: 0.5; }
-      }
-
-      .stage {
-        position: relative;
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 0;
-      }
-
-      .term-layer {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        overflow: hidden;
-      }
-
-      .term {
-        position: absolute;
-        left: 50%;
-        top: 48%;
-        transform: translate(-50%, -50%) scale(0.86);
-        padding: 10px 16px;
-        border-radius: 999px;
-        color: #f7fbff;
-        background: linear-gradient(135deg, rgba(118, 214, 255, 0.18), rgba(123, 255, 204, 0.16));
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
-        font-weight: 800;
-        letter-spacing: 0.04em;
-        opacity: 0;
-        animation: floatUp 1200ms ease-out forwards;
-        user-select: none;
-        will-change: transform, opacity;
-      }
-
-      .term small {
-        display: block;
-        margin-top: 4px;
-        font-size: 11px;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.8);
-        letter-spacing: 0;
-      }
-
-      .button-zone {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding-top: 16px;
-      }
-
-      .tap-button {
-        width: min(78vw, 320px);
-        aspect-ratio: 1 / 1;
-        border: none;
-        border-radius: 30px;
-        background:
-          radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.28), transparent 30%),
-          linear-gradient(180deg, #58d9ff, #1e97ff 55%, #1152d4);
-        color: white;
-        font-size: 28px;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-        box-shadow:
-          0 24px 50px rgba(0, 0, 0, 0.35),
-          inset 0 1px 0 rgba(255, 255, 255, 0.32),
-          inset 0 -18px 30px rgba(0, 0, 0, 0.16);
-        transform: translateZ(0);
-        transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
-      }
-
-      .tap-button:active {
-        transform: scale(0.97);
-        filter: brightness(1.03);
-        box-shadow:
-          0 18px 36px rgba(0, 0, 0, 0.34),
-          inset 0 1px 0 rgba(255, 255, 255, 0.28),
-          inset 0 -14px 24px rgba(0, 0, 0, 0.14);
-      }
-
-      .tap-button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .tap-button .subtitle {
-        display: block;
-        margin-top: 10px;
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        color: rgba(255, 255, 255, 0.88);
-      }
-
-      .footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        color: var(--muted);
-        font-size: 12px;
-      }
-
-      .chip {
-        padding: 10px 12px;
-        border-radius: 999px;
-        background: rgba(9, 16, 31, 0.38);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(14px);
-      }
-
-      @keyframes floatUp {
-        0% {
-          opacity: 0;
-          transform: translate(-50%, -20%) scale(0.78);
-          filter: blur(1px);
-        }
-        18% {
-          opacity: 1;
-          transform: translate(calc(-50% + var(--x, 0px)), calc(-50% + var(--y, 0px))) scale(1);
-          filter: blur(0);
-        }
-        100% {
-          opacity: 0;
-          transform: translate(calc(-50% + var(--x, 0px)), calc(-50% - 92px + var(--y, 0px))) scale(1.08);
-          filter: blur(0.3px);
-        }
-      }
-
-      .pulse {
-        animation: pulse 260ms ease-out;
-      }
-
-      @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.03); }
-        100% { transform: scale(1); }
+      .desc {
+        font-size: 16px;
+        color: var(--text-dim);
+        line-height: 1.6;
+        margin-bottom: 20px;
       }
 
       /* Start Page */
-      .start-page {
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        gap: 40px;
-      }
+      .start-page { gap: 20px; }
+      .start-page h1 { font-size: 36px; }
 
-      .start-page h1 {
-        font-size: 32px;
-      }
-
-      .start-page .desc {
-        color: var(--muted);
+      .nickname-input { margin: 10px 0; }
+      .nickname-input input {
+        width: 200px;
+        padding: 12px 16px;
         font-size: 16px;
-        max-width: 280px;
+        border: 2px solid var(--accent);
+        border-radius: 10px;
+        text-align: center;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        outline: none;
+      }
+      .nickname-input input::placeholder { color: var(--text-dim); }
+      .nickname-input input:focus {
+        border-color: var(--accent-2);
+        box-shadow: 0 0 15px rgba(88, 217, 255, 0.3);
       }
 
       .start-button {
@@ -312,53 +100,42 @@
         font-size: 22px;
         font-weight: 800;
         border: none;
-        border-radius: 60px;
-        background: linear-gradient(135deg, #58d9ff, #1e97ff);
+        border-radius: 50px;
+        background: linear-gradient(135deg, var(--accent), #1e97ff);
         color: white;
         box-shadow: 0 10px 40px rgba(30, 151, 255, 0.4);
         cursor: pointer;
-        transition: transform 200ms ease, box-shadow 200ms ease;
+        transition: transform 200ms ease;
+      }
+      .start-button:active { transform: scale(0.95); }
+
+      .leaderboard-button {
+        margin-top: 15px;
+        padding: 12px 30px;
+        font-size: 16px;
+        font-weight: 600;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 25px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        transition: all 200ms ease;
+      }
+      .leaderboard-button:active { transform: scale(0.95); }
+
+      .chip {
+        margin-top: 20px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.08);
+        font-size: 12px;
+        color: var(--text-dim);
       }
 
-      .start-button:active {
-        transform: scale(0.95);
-      }
+      /* Leaderboard Page */
+      .leaderboard-page h1 { font-size: 28px; }
 
-      /* Result Page */
-      .result-page {
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        gap: 30px;
-      }
-
-      .result-page h1 {
-        font-size: 28px;
-      }
-
-      .score-display {
-        padding: 30px 50px;
-        border-radius: 24px;
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        box-shadow: 0 10px 40px var(--shadow);
-        backdrop-filter: blur(18px);
-      }
-
-      .score-label {
-        font-size: 14px;
-        color: var(--muted);
-        margin-bottom: 8px;
-      }
-
-      .score-value {
-        font-size: 64px;
-        font-weight: 900;
-        color: #ffffff;
-        text-shadow: 0 8px 24px rgba(118, 214, 255, 0.28);
-      }
-
-      .leaderboard {
+      .leaderboard-modal {
         width: 100%;
         max-width: 320px;
         padding: 20px;
@@ -367,40 +144,179 @@
         border: 1px solid var(--panel-border);
       }
 
-      .leaderboard h3 {
-        margin: 0 0 16px;
-        font-size: 16px;
-        color: var(--muted);
-      }
-
-      .leaderboard-list {
+      .leaderboard-modal .leaderboard-list {
         list-style: none;
         padding: 0;
         margin: 0;
       }
 
-      .leaderboard-item {
+      .leaderboard-modal .leaderboard-item {
         display: flex;
         justify-content: space-between;
-        padding: 10px 0;
+        padding: 12px 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         font-size: 15px;
       }
 
-      .leaderboard-item:last-child {
-        border-bottom: none;
+      .leaderboard-modal .rank { color: var(--accent); font-weight: 700; width: 30px; }
+      .leaderboard-modal .nickname { flex: 1; text-align: left; padding-left: 10px; color: #fff; }
+      .leaderboard-modal .score { font-weight: 700; color: var(--accent-2); }
+
+      .back-button {
+        margin-top: 20px;
+        padding: 12px 32px;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        border-radius: 25px;
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        cursor: pointer;
       }
 
-      .leaderboard-item .rank {
-        color: var(--accent);
-        font-weight: 700;
-        width: 30px;
+      /* Game Page */
+      .game-page { justify-content: space-between; padding-top: 20px; padding-bottom: 20px; }
+
+      .topbar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
       }
 
-      .leaderboard-item .score {
+      .title-block { text-align: left; }
+      .eyebrow { font-size: 10px; color: var(--accent); letter-spacing: 2px; margin-bottom: 4px; }
+      .topbar h1 { font-size: 20px; margin: 0; }
+
+      .timer-card {
+        padding: 10px 20px;
+        border-radius: 15px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        text-align: center;
+      }
+      .timer-label { font-size: 10px; color: var(--text-dim); }
+      .timer-value { font-size: 28px; font-weight: 900; color: var(--accent); }
+      .timer-value.warning { color: #ff5858; animation: pulse 0.5s infinite; }
+
+      /* Dance Stage */
+      .stage {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+      }
+
+      /* Arrow Indicator */
+      .arrow-indicator {
+        font-size: 60px;
+        margin-bottom: 20px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.1s ease;
+      }
+      .arrow-indicator.up { color: #ff6b6b; transform: translateY(-20px); }
+      .arrow-indicator.down { color: #4ecdc4; transform: translateY(20px); }
+      .arrow-indicator.left { color: #ffe66d; transform: translateX(-20px); }
+      .arrow-indicator.right { color: #95e1d3; transform: translateX(20px); }
+      .arrow-indicator.show { animation: arrowPop 0.3s ease; }
+
+      @keyframes arrowPop {
+        0% { transform: scale(0.5); opacity: 0; }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      /* Dancing Girl */
+      .dancer {
+        font-size: 100px;
+        line-height: 1;
+        transition: transform 0.15s ease;
+        cursor: default;
+      }
+      .dancer.jump-up { transform: translateY(-40px) rotate(-10deg); }
+      .dancer.jump-down { transform: translateY(30px) scaleY(0.8); }
+      .dancer.jump-left { transform: translateX(-40px) rotate(-15deg); }
+      .dancer.jump-right { transform: translateX(40px) rotate(15deg); }
+      .dancer.correct { animation: correctPulse 0.2s ease; }
+      .dancer.wrong { animation: wrongShake 0.3s ease; }
+
+      @keyframes correctPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); filter: brightness(1.3); }
+      }
+      @keyframes wrongShake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+      }
+
+      /* Keyboard hints */
+      .keyboard-hints {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .key-hint {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        transition: all 0.1s ease;
+      }
+      .key-hint.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--bg-0);
+        transform: scale(1.1);
+      }
+
+      .footer {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .score-chip {
+        padding: 10px 20px;
+        border-radius: 25px;
+        background: var(--panel);
+        border: 1px solid var(--accent);
+        font-size: 18px;
         font-weight: 700;
         color: var(--accent-2);
       }
+      .score-label { font-size: 12px; color: var(--text-dim); font-weight: 400; }
+
+      /* Result Page */
+      .result-page { gap: 25px; }
+      .result-page h1 { font-size: 28px; }
+
+      .score-display {
+        padding: 30px 50px;
+        border-radius: 24px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+      }
+      .score-label { font-size: 14px; color: var(--text-dim); margin-bottom: 8px; }
+      .score-value { font-size: 64px; font-weight: 900; color: #ffffff; }
+
+      .leaderboard { width: 100%; max-width: 320px; }
+      .leaderboard h3 { margin: 0 0 16px; font-size: 16px; color: var(--text-dim); }
+      .leaderboard-list { list-style: none; padding: 0; margin: 0; }
+      .leaderboard-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 15px; }
+      .leaderboard-item .rank { color: var(--accent); font-weight: 700; width: 30px; }
+      .leaderboard-item .nickname { flex: 1; text-align: left; padding-left: 10px; }
+      .leaderboard-item .score { font-weight: 700; color: var(--accent-2); }
 
       .restart-button {
         padding: 16px 48px;
@@ -408,22 +324,20 @@
         font-weight: 700;
         border: none;
         border-radius: 50px;
-        background: linear-gradient(135deg, #7bffcc, #58d9ff);
-        color: #07111f;
+        background: linear-gradient(135deg, var(--accent-2), var(--accent));
+        color: var(--bg-0);
         cursor: pointer;
-        box-shadow: 0 8px 30px rgba(123, 255, 204, 0.3);
-        transition: transform 200ms ease;
       }
 
-      .restart-button:active {
-        transform: scale(0.95);
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
       }
 
       @media (max-width: 420px) {
-        h1 { font-size: 20px; }
-        .timer-value { font-size: 28px; }
-        .tap-button { font-size: 24px; }
-        .start-page h1 { font-size: 26px; }
+        h1 { font-size: 24px; }
+        .dancer { font-size: 80px; }
+        .arrow-indicator { font-size: 50px; }
         .score-value { font-size: 48px; }
       }
     </style>
@@ -433,49 +347,65 @@
       <!-- 开始页面 -->
       <section id="startPage" class="page start-page active">
         <div>
-          <h1>数据点击器</h1>
-          <p class="desc">1分钟内点击按钮<br/>看看你能点多少次？</p>
+          <h1>🎮 数据跳舞机</h1>
+          <p class="desc">10秒内根据箭头方向<br/>按下对应键盘按键</p>
+        </div>
+        <div class="nickname-input">
+          <input type="text" id="nicknameInput" placeholder="请输入你的昵称" maxlength="10" />
         </div>
         <button id="startButton" class="start-button" type="button">开始挑战</button>
-        <div class="chip">适合钉钉扫码打开</div>
+        <button id="leaderboardButton" class="leaderboard-button" type="button">🏆 排行榜</button>
+        <div class="chip">⬅️⬆️⬇️➡️ 使用方向键</div>
+      </section>
+
+      <!-- 排行榜页面 -->
+      <section id="leaderboardPage" class="page leaderboard-page">
+        <h1>🏆 排行榜</h1>
+        <div class="leaderboard-modal">
+          <ul id="leaderboardList2" class="leaderboard-list"></ul>
+        </div>
+        <button id="backButton" class="back-button" type="button">返回</button>
       </section>
 
       <!-- 游戏页面 -->
       <section id="gamePage" class="page game-page">
         <header class="topbar">
           <div class="title-block">
-            <div class="eyebrow">SCAN · TAP · COUNT</div>
-            <h1>数据点击器</h1>
+            <div class="eyebrow">DANCE · RHYTHM · SCORE</div>
+            <h1>数据跳舞机</h1>
           </div>
           <div class="timer-card" aria-live="polite">
             <div class="timer-label">剩余时间</div>
-            <div id="timer" class="timer-value">60</div>
+            <div id="timer" class="timer-value">10</div>
           </div>
         </header>
 
-        <section class="stage" aria-label="点击游戏区域">
-          <div id="termLayer" class="term-layer" aria-hidden="true"></div>
-        </section>
-
-        <section class="button-zone">
-          <button id="tapButton" class="tap-button" type="button">
-            点击
-            <span class="subtitle">Tap to count</span>
-          </button>
+        <section class="stage">
+          <div id="arrowIndicator" class="arrow-indicator">⬆️</div>
+          <div id="dancer" class="dancer">💃</div>
+          <div class="keyboard-hints">
+            <div id="keyLeft" class="key-hint">⬅️</div>
+            <div id="keyUp" class="key-hint">⬆️</div>
+            <div id="keyDown" class="key-hint">⬇️</div>
+            <div id="keyRight" class="key-hint">➡️</div>
+          </div>
         </section>
 
         <footer class="footer">
-          <div class="chip">当前点击</div>
-          <div id="counter" class="chip">0</div>
+          <div class="score-chip">
+            <span class="score-label">正确 </span>
+            <span id="counter">0</span>
+            <span class="score-label"> 次</span>
+          </div>
         </footer>
       </section>
 
       <!-- 结果页面 -->
       <section id="resultPage" class="page result-page">
-        <h1>挑战结束！</h1>
+        <h1>🎉 挑战结束！</h1>
 
         <div class="score-display">
-          <div class="score-label">你的点击次数</div>
+          <div class="score-label">你的得分</div>
           <div id="finalScore" class="score-value">0</div>
         </div>
 
@@ -495,34 +425,40 @@
       const startPage = document.getElementById('startPage');
       const gamePage = document.getElementById('gamePage');
       const resultPage = document.getElementById('resultPage');
+      const leaderboardPage = document.getElementById('leaderboardPage');
       const startButton = document.getElementById('startButton');
-      const tapButton = document.getElementById('tapButton');
+      const leaderboardButton = document.getElementById('leaderboardButton');
+      const backButton = document.getElementById('backButton');
       const restartButton = document.getElementById('restartButton');
       const timerEl = document.getElementById('timer');
       const counterEl = document.getElementById('counter');
-      const termLayer = document.getElementById('termLayer');
+      const dancerEl = document.getElementById('dancer');
+      const arrowIndicator = document.getElementById('arrowIndicator');
       const finalScoreEl = document.getElementById('finalScore');
       const leaderboardList = document.getElementById('leaderboardList');
+      const leaderboardList2 = document.getElementById('leaderboardList2');
+      const nicknameInput = document.getElementById('nicknameInput');
+
+      // 键盘按键元素
+      const keyLeft = document.getElementById('keyLeft');
+      const keyUp = document.getElementById('keyUp');
+      const keyDown = document.getElementById('keyDown');
+      const keyRight = document.getElementById('keyRight');
 
       // 游戏状态
       let count = 0;
-      let timeLeft = 60;
+      let timeLeft = 10;
       let timerInterval = null;
       let gameActive = false;
+      let currentArrow = '';
+      let arrowTimeout = null;
 
-      const terms = [
-        { label: "DAU", meaning: "Daily Active Users" },
-        { label: "DATA", meaning: "数据资产" },
-        { label: "DW", meaning: "Data Warehouse" },
-        { label: "ETL", meaning: "抽取 · 转换 · 加载" },
-        { label: "BI", meaning: "Business Intelligence" },
-        { label: "SQL", meaning: "结构化查询语言" },
-        { label: "OLAP", meaning: "联机分析处理" },
-        { label: "KPI", meaning: "关键绩效指标" },
-        { label: "MAU", meaning: "Monthly Active Users" },
-        { label: "RFM", meaning: "最近消费 · 频次 · 金额" },
-        { label: "AARRR", meaning: "增长漏斗模型" },
-        { label: "CDP", meaning: "客户数据平台" },
+      // 箭头配置
+      const arrows = [
+        { key: 'ArrowUp', symbol: '⬆️', direction: 'up', class: 'up' },
+        { key: 'ArrowDown', symbol: '⬇️', direction: 'down', class: 'down' },
+        { key: 'ArrowLeft', symbol: '⬅️', direction: 'left', class: 'left' },
+        { key: 'ArrowRight', symbol: '➡️', direction: 'right', class: 'right' }
       ];
 
       // 页面切换
@@ -530,27 +466,118 @@
         startPage.classList.remove('active');
         gamePage.classList.remove('active');
         resultPage.classList.remove('active');
+        leaderboardPage.classList.remove('active');
         page.classList.add('active');
+      }
+
+      // 渲染排行榜
+      function renderLeaderboard(data, container) {
+        if (data.leaderboard && data.leaderboard.length > 0) {
+          container.innerHTML = data.leaderboard.map((item, idx) => `
+            <li class="leaderboard-item">
+              <span class="rank">${idx + 1}</span>
+              <span class="nickname">${item.nickname}</span>
+              <span class="score">${item.score}分</span>
+            </li>`).join('');
+        } else {
+          container.innerHTML = '<li class="leaderboard-item"><span>-暂无数据-</span></li>';
+        }
+      }
+
+      // 加载排行榜
+      async function loadLeaderboard() {
+        try {
+          const res = await fetch('/api/leaderboard');
+          const data = await res.json();
+          renderLeaderboard(data, leaderboardList);
+        } catch (e) {
+          console.error('加载排行榜失败:', e);
+          leaderboardList.innerHTML = '<li class="leaderboard-item"><span>-加载失败-</span></li>';
+        }
+      }
+
+      // 显示新箭头
+      function showNewArrow() {
+        if (!gameActive) return;
+
+        // 随机选择一个箭头
+        const arrow = arrows[Math.floor(Math.random() * arrows.length)];
+        currentArrow = arrow.key;
+
+        arrowIndicator.textContent = arrow.symbol;
+        arrowIndicator.className = 'arrow-indicator show ' + arrow.class;
+
+        // 1.5秒后自动切换到下一个箭头（如果不按的话）
+        if (arrowTimeout) clearTimeout(arrowTimeout);
+        arrowTimeout = setTimeout(() => {
+          if (gameActive) showNewArrow();
+        }, 1500);
+      }
+
+      // 处理按键
+      function handleKeyDown(e) {
+        if (!gameActive) return;
+        if (!arrows.find(a => a.key === e.key)) return;
+
+        e.preventDefault();
+
+        const arrow = arrows.find(a => a.key === e.key);
+        const isCorrect = e.key === currentArrow;
+
+        // 键盘高亮
+        highlightKey(arrow.direction);
+
+        // 角色动画
+        if (isCorrect) {
+          count++;
+          counterEl.textContent = count;
+          dancerEl.className = 'dancer jump-' + arrow.direction + ' correct';
+          showNewArrow(); // 正确后立即切换
+        } else {
+          dancerEl.className = 'dancer wrong';
+        }
+
+        // 清除动画類
+        setTimeout(() => {
+          dancerEl.className = 'dancer';
+        }, 200);
+      }
+
+      // 高亮键盘
+      function highlightKey(direction) {
+        const keyMap = { 'left': keyLeft, 'up': keyUp, 'down': keyDown, 'right': keyRight };
+        const keyEl = keyMap[direction];
+        if (keyEl) {
+          keyEl.classList.add('active');
+          setTimeout(() => keyEl.classList.remove('active'), 150);
+        }
       }
 
       // 开始游戏
       function startGame() {
+        const nickname = nicknameInput.value.trim() || '匿名玩家';
+        localStorage.setItem('playerNickname', nickname);
+
         count = 0;
-        timeLeft = 60;
+        timeLeft = 10;
         gameActive = true;
 
         counterEl.textContent = '0';
-        timerEl.textContent = '60';
+        timerEl.textContent = '10';
         timerEl.classList.remove('warning');
+        dancerEl.className = 'dancer';
 
         showPage(gamePage);
+
+        // 第一次显示箭头
+        showNewArrow();
 
         // 倒计时
         timerInterval = setInterval(() => {
           timeLeft--;
           timerEl.textContent = timeLeft;
 
-          if (timeLeft <= 10) {
+          if (timeLeft <= 3) {
             timerEl.classList.add('warning');
           }
 
@@ -564,7 +591,7 @@
       function endGame() {
         gameActive = false;
         clearInterval(timerInterval);
-        tapButton.disabled = true;
+        if (arrowTimeout) clearTimeout(arrowTimeout);
 
         finalScoreEl.textContent = count;
 
@@ -579,91 +606,78 @@
 
       // 提交分数
       async function submitScore(score) {
+        const nickname = localStorage.getItem('playerNickname') || '匿名玩家';
         try {
           await fetch('/api/submit-score', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ score })
+            body: JSON.stringify({ score, nickname })
           });
         } catch (e) {
           console.error('提交分数失败:', e);
         }
       }
 
-      // 加载排行榜
-      async function loadLeaderboard() {
-        try {
-          const res = await fetch('/api/leaderboard');
-          const data = await res.json();
-
-          if (data.leaderboard && data.leaderboard.length > 0) {
-            leaderboardList.innerHTML = data.leaderboard.map((item, idx) => `
-              <li class="leaderboard-item">
-                <span class="rank">${idx + 1}</span>
-                <span class="score">${item.score} 次</span>
-              </li>
-            `).join('');
-          } else {
-            leaderboardList.innerHTML = '<li class="leaderboard-item"><span>-</span><span>暂无数据</span></li>';
-          }
-        } catch (e) {
-          console.error('加载排行榜失败:', e);
-          leaderboardList.innerHTML = '<li class="leaderboard-item"><span>-</span><span>加载失败</span></li>';
-        }
-      }
-
       // 重新开始
       function restartGame() {
-        tapButton.disabled = false;
-        startGame();
-      }
-
-      // 更新计数器
-      function updateCounter() {
-        counterEl.textContent = String(count);
-        counterEl.classList.remove('pulse');
-        void counterEl.offsetWidth;
-        counterEl.classList.add('pulse');
-      }
-
-      // 显示术语
-      function spawnTerm() {
-        const term = terms[Math.floor(Math.random() * terms.length)];
-        const node = document.createElement('div');
-        node.className = 'term';
-
-        const x = (Math.random() * 56 - 28).toFixed(1) + 'px';
-        const y = (Math.random() * 18 - 9).toFixed(1) + 'px';
-        node.style.setProperty('--x', x);
-        node.style.setProperty('--y', y);
-        node.innerHTML = `${term.label}<small>${term.meaning}</small>`;
-
-        termLayer.appendChild(node);
-        setTimeout(() => node.remove(), 1250);
+        showPage(startPage);
       }
 
       // 事件监听
       startButton.addEventListener('click', startGame);
       restartButton.addEventListener('click', restartGame);
 
-      tapButton.addEventListener('click', () => {
+      // 排行榜按钮
+      leaderboardButton.addEventListener('click', async () => {
+        showPage(leaderboardPage);
+        try {
+          const res = await fetch('/api/leaderboard');
+          const data = await res.json();
+          renderLeaderboard(data, leaderboardList2);
+        } catch (e) {
+          console.error('加载排行榜失败:', e);
+          leaderboardList2.innerHTML = '<li class="leaderboard-item"><span>-加载失败-</span></li>';
+        }
+      });
+
+      // 返回按钮
+      backButton.addEventListener('click', () => {
+        showPage(startPage);
+      });
+
+      // 键盘事件
+      document.addEventListener('keydown', handleKeyDown);
+
+      // 触摸事件（手机端支持）
+      let touchStartX = 0;
+      let touchStartY = 0;
+
+      document.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      document.addEventListener('touchend', (e) => {
         if (!gameActive) return;
-        count++;
-        updateCounter();
-        spawnTerm();
-      });
 
-      tapButton.addEventListener('pointerdown', () => {
-        tapButton.setAttribute('aria-pressed', 'true');
-      });
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
 
-      tapButton.addEventListener('pointerup', () => {
-        tapButton.setAttribute('aria-pressed', 'false');
-      });
+        // 判断滑动方向
+        if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return; // 移动距离太短
 
-      tapButton.addEventListener('pointercancel', () => {
-        tapButton.setAttribute('aria-pressed', 'false');
-      });
+        let key = '';
+        if (Math.abs(dx) > Math.abs(dy)) {
+          key = dx > 0 ? 'ArrowRight' : 'ArrowLeft';
+        } else {
+          key = dy > 0 ? 'ArrowDown' : 'ArrowUp';
+        }
+
+        // 模拟按键
+        handleKeyDown({ key, preventDefault: () => {} });
+      }, { passive: true });
     </script>
   </body>
 </html>

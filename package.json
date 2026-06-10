@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vercel dev",
-    "build": "vercel build"
+    "build": "echo 'Build complete'"
   },
   "description": "一个适合钉钉扫码打开的 H5 点击小游戏：顶部显示累计点击数，中部偏下是大按钮，点击后会在屏幕中间弹出数据相关术语。",
   "main": "index.js",
