@@ -3,15 +3,9 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>吃苹果长高</title>
+    <title>点击吃苹果</title>
     <style>
       :root {
-        --bg-0: #2d5a27;
-        --bg-1: #1a3d16;
-        --bg-2: #234d1e;
-        --bg-3: #2d6b2f;
-        --text: #ffffff;
-        --text-dim: #a8d5a2;
         --accent: #ff6b6b;
         --accent-2: #7bffcc;
         --panel: rgba(22, 35, 54, 0.8);
@@ -22,12 +16,13 @@
 
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%, var(--bg-3));
-        color: var(--text);
+        background: linear-gradient(180deg, #1a3d16, #234d1e 60%, #2d6b2f);
+        color: #fff;
         min-height: 100vh;
         overflow: hidden;
         user-select: none;
         -webkit-user-select: none;
+        cursor: pointer;
       }
 
       .app {
@@ -67,7 +62,7 @@
 
       .desc {
         font-size: 16px;
-        color: var(--text-dim);
+        color: #a8d5a2;
         line-height: 1.6;
         margin-bottom: 20px;
       }
@@ -88,7 +83,7 @@
         color: white;
         outline: none;
       }
-      .nickname-input input::placeholder { color: var(--text-dim); }
+      .nickname-input input::placeholder { color: #a8d5a2; }
       .nickname-input input:focus {
         border-color: var(--accent-2);
         box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
@@ -128,7 +123,7 @@
         border-radius: 20px;
         background: rgba(255,255,255,0.08);
         font-size: 12px;
-        color: var(--text-dim);
+        color: #a8d5a2;
       }
 
       /* Leaderboard Page */
@@ -178,7 +173,7 @@
         justify-content: space-between;
         padding-top: 20px;
         padding-bottom: 20px;
-        overflow: hidden;
+        cursor: crosshair;
       }
 
       .topbar {
@@ -201,7 +196,7 @@
         border: 1px solid var(--panel-border);
         text-align: center;
       }
-      .timer-label { font-size: 10px; color: var(--text-dim); }
+      .timer-label { font-size: 10px; color: #a8d5a2; }
       .timer-value { font-size: 28px; font-weight: 900; color: var(--accent); }
       .timer-value.warning { color: #ff5858; animation: pulse 0.5s infinite; }
 
@@ -213,70 +208,51 @@
         overflow: hidden;
       }
 
-      /* Player */
-      .player {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 30px;
-        line-height: 1;
-        transition: top 0.15s ease, height 0.3s ease;
-        display: flex;
-        align-items: flex-end;
-      }
-      .player.eat {
-        animation: eatBounce 0.3s ease;
-      }
-
-      /* 跳舞动画 */
-      @keyframes dance {
-        0%, 100% { transform: translate(-50%, 50%) rotate(-5deg); }
-        50% { transform: translate(-50%, 50%) rotate(5deg); }
-      }
-      .player.dancing {
-        animation: dance 0.4s ease infinite;
-      }
-
-      /* 移动动画 */
-      .player.moving-left {
-        transform: translate(-50%, 50%) scaleX(-1);
-      }
-      .player.moving-right {
-        transform: translate(-50%, 50%) scaleX(1);
-      }
-      @keyframes eatBounce {
-        0%, 100% { transform: translateX(-50%) scale(1); }
-        50% { transform: translateX(-50%) scale(1.2); }
-      }
-
       /* Apple */
       .apple {
         position: absolute;
-        font-size: 28px;
-        animation: appleFloat 2s ease-in-out infinite;
+        font-size: 40px;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+        user-select: none;
+        -webkit-user-select: none;
       }
-      @keyframes appleFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-5px); }
+      .apple:hover {
+        transform: scale(1.1);
+      }
+      .apple.eaten {
+        animation: applePop 0.3s ease forwards;
+      }
+      @keyframes applePop {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(2); opacity: 0; }
       }
 
-      /* Ground */
-      .ground {
+      /* Click effect */
+      .click-effect {
         position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 20px;
-        background: #5d4037;
-        border-top: 3px solid #8d6e63;
+        font-size: 20px;
+        pointer-events: none;
+        animation: floatUp 0.5s ease forwards;
       }
-      .grass {
+      @keyframes floatUp {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(-30px); opacity: 0; }
+      }
+
+      /* Score popup */
+      .score-popup {
         position: absolute;
-        bottom: 15px;
-        left: 0;
-        right: 0;
-        height: 10px;
-        background: linear-gradient(180deg, #4caf50, #388e3c);
+        font-size: 24px;
+        font-weight: bold;
+        color: #ff6b6b;
+        pointer-events: none;
+        animation: scoreFloat 0.8s ease forwards;
+      }
+      @keyframes scoreFloat {
+        0% { transform: translateY(0) scale(0.5); opacity: 0; }
+        50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+        100% { transform: translateY(-50px) scale(1); opacity: 0; }
       }
 
       .footer {
@@ -294,27 +270,7 @@
         font-weight: 700;
         color: var(--accent-2);
       }
-      .score-label { font-size: 12px; color: var(--text-dim); font-weight: 400; }
-
-      /* Height indicator */
-      .height-indicator {
-        position: absolute;
-        right: 10px;
-        bottom: 30px;
-        width: 8px;
-        height: 60%;
-        background: rgba(255,255,255,0.1);
-        border-radius: 4px;
-      }
-      .height-fill {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(180deg, #ff6b6b, #ffa500);
-        border-radius: 4px;
-        transition: height 0.3s ease;
-      }
+      .score-label { font-size: 12px; color: #a8d5a2; font-weight: 400; }
 
       /* Result Page */
       .result-page { gap: 25px; }
@@ -326,11 +282,11 @@
         background: var(--panel);
         border: 1px solid var(--panel-border);
       }
-      .score-label { font-size: 14px; color: var(--text-dim); margin-bottom: 8px; }
+      .score-label { font-size: 14px; color: #a8d5a2; margin-bottom: 8px; }
       .score-value { font-size: 64px; font-weight: 900; color: #ffffff; }
 
       .leaderboard { width: 100%; max-width: 320px; }
-      .leaderboard h3 { margin: 0 0 16px; font-size: 16px; color: var(--text-dim); }
+      .leaderboard h3 { margin: 0 0 16px; font-size: 16px; color: #a8d5a2; }
       .leaderboard-list { list-style: none; padding: 0; margin: 0; }
       .leaderboard-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 15px; }
       .leaderboard-item .rank { color: var(--accent); font-weight: 700; width: 30px; }
@@ -344,7 +300,7 @@
         border: none;
         border-radius: 50px;
         background: linear-gradient(135deg, var(--accent-2), var(--accent));
-        color: var(--bg-0);
+        color: #1a3d16;
         cursor: pointer;
       }
 
@@ -355,8 +311,7 @@
 
       @media (max-width: 420px) {
         h1 { font-size: 24px; }
-        .player { font-size: 24px; }
-        .apple { font-size: 22px; }
+        .apple { font-size: 32px; }
         .score-value { font-size: 48px; }
       }
     </style>
@@ -366,15 +321,15 @@
       <!-- 开始页面 -->
       <section id="startPage" class="page start-page active">
         <div>
-          <h1>🍎 吃苹果长高</h1>
-          <p class="desc">10秒内吃掉苹果<br/>让自己越长越高！</p>
+          <h1>🍎 点击吃苹果</h1>
+          <p class="desc">10秒内点击苹果<br/>看谁点得多！</p>
         </div>
         <div class="nickname-input">
           <input type="text" id="nicknameInput" placeholder="请输入你的昵称" maxlength="10" />
         </div>
         <button id="startButton" class="start-button" type="button">开始挑战</button>
         <button id="leaderboardButton" class="leaderboard-button" type="button">🏆 排行榜</button>
-        <div class="chip">⬅️⬆️⬇️➡️ 使用方向键移动</div>
+        <div class="chip">👆 点击屏幕上的苹果</div>
       </section>
 
       <!-- 排行榜页面 -->
@@ -390,8 +345,8 @@
       <section id="gamePage" class="page game-page">
         <header class="topbar">
           <div class="title-block">
-            <div class="eyebrow">EAT · GROW · WIN</div>
-            <h1>吃苹果长高</h1>
+            <div class="eyebrow">CLICK · EAT · SCORE</div>
+            <h1>点击吃苹果</h1>
           </div>
           <div class="timer-card" aria-live="polite">
             <div class="timer-label">剩余时间</div>
@@ -400,19 +355,14 @@
         </header>
 
         <section class="game-area" id="gameArea">
-          <div id="player" class="player">😐</div>
-          <div class="ground"></div>
-          <div class="grass"></div>
-          <div class="height-indicator">
-            <div id="heightFill" class="height-fill" style="height: 10%"></div>
-          </div>
+          <!-- 苹果会动态生成在这里 -->
         </section>
 
         <footer class="footer">
           <div class="score-chip">
-            <span class="score-label">吃掉 </span>
+            <span class="score-label">已吃 </span>
             <span id="counter">0</span>
-            <span class="score-label"> 个苹果</span>
+            <span class="score-label"> 个</span>
           </div>
         </footer>
       </section>
@@ -453,8 +403,6 @@
       const leaderboardList = document.getElementById('leaderboardList');
       const leaderboardList2 = document.getElementById('leaderboardList2');
       const nicknameInput = document.getElementById('nicknameInput');
-      const playerEl = document.getElementById('player');
-      const heightFill = document.getElementById('heightFill');
       const gameArea = document.getElementById('gameArea');
 
       // 游戏状态
@@ -462,46 +410,11 @@
       let timeLeft = 10;
       let timerInterval = null;
       let gameActive = false;
-      let playerX = 50; // 百分比（左右）
-      let playerY = 80; // 百分比（上下，0是顶部）
-      let playerHeight = 15; // 百分比，最小高度
-      const MIN_HEIGHT = 15;
-      const MAX_HEIGHT = 90;
-      const MOVE_SPEED = 4;
-      const MOVE_SPEED_Y = 5;
-      const HEIGHT_INCREMENT = 8;
-      const GROUND_Y = 85; // 地面位置（百分比）
 
       // 苹果数组
       let apples = [];
-      const INITIAL_APPLE_COUNT = 3;
-
-      // 按键状态
-      const keysPressed = {};
-
-      // 跳舞帧动画
-      const danceFrames = ['💃', '💃', '💃'];
-      let danceFrameIndex = 0;
-      let danceInterval = null;
-
-      // 开始跳舞动画
-      function startDancing() {
-        if (danceInterval) return;
-        danceInterval = setInterval(() => {
-          if (gameActive) {
-            playerEl.textContent = danceFrames[danceFrameIndex % 3];
-            danceFrameIndex++;
-          }
-        }, 200);
-      }
-
-      // 停止跳舞动画
-      function stopDancing() {
-        if (danceInterval) {
-          clearInterval(danceInterval);
-          danceInterval = null;
-        }
-      }
+      const MAX_APPLES = 8;
+      const APPLE_TYPES = ['🍎', '🍐', '🍊', '🍋', '🍌'];
 
       // 页面切换
       function showPage(page) {
@@ -540,160 +453,93 @@
 
       // 创建苹果
       function createApple() {
+        if (apples.length >= MAX_APPLES) return;
+
         const apple = document.createElement('div');
         apple.className = 'apple';
-        apple.textContent = '🍎';
+        apple.textContent = APPLE_TYPES[Math.floor(Math.random() * APPLE_TYPES.length)];
 
-        // 随机位置（避免与角色重叠太多的区域）
-        const areaHeight = gameArea.clientHeight - 60; // 留出底部空间
-        const areaWidth = gameArea.clientWidth;
+        // 随机位置（保证在游戏区域內）
+        const padding = 50;
+        const areaWidth = gameArea.clientWidth - padding * 2;
+        const areaHeight = gameArea.clientHeight - padding * 2;
 
-        const x = Math.random() * (areaWidth - 40) + 10;
-        const y = Math.random() * (areaHeight - 100) + 50; // 保证在可移动范围内
+        const x = Math.random() * areaWidth + padding;
+        const y = Math.random() * areaHeight + padding;
 
         apple.style.left = x + 'px';
         apple.style.top = y + 'px';
 
+        // 点击事件
+        apple.addEventListener('click', (e) => {
+          e.stopPropagation();
+          eatApple(apple);
+        });
+
         gameArea.appendChild(apple);
-        return {
-          element: apple,
-          x: x,
-          y: y,
-          width: 28,
-          height: 28
-        };
+        apples.push(apple);
       }
 
       // 初始化苹果
       function initApples() {
         // 清除现有苹果
-        apples.forEach(a => a.element.remove());
+        apples.forEach(a => a.remove());
         apples = [];
 
         // 创建初始苹果
-        for (let i = 0; i < INITIAL_APPLE_COUNT; i++) {
-          apples.push(createApple());
-        }
-      }
-
-      // 检测碰撞
-      function checkCollision() {
-        const playerRect = playerEl.getBoundingClientRect();
-
-        for (let i = apples.length - 1; i >= 0; i--) {
-          const apple = apples[i];
-          const appleRect = apple.element.getBoundingClientRect();
-
-          // 简单的矩形碰撞检测
-          if (playerRect.right > appleRect.left &&
-              playerRect.left < appleRect.right &&
-              playerRect.bottom > appleRect.top &&
-              playerRect.top < appleRect.bottom) {
-            // 吃到苹果
-            eatApple(i);
-          }
+        for (let i = 0; i < 5; i++) {
+          setTimeout(() => createApple(), i * 100);
         }
       }
 
       // 吃掉苹果
-      function eatApple(index) {
-        const apple = apples[index];
-
-        // 移除苹果
-        apple.element.remove();
-        apples.splice(index, 1);
+      function eatApple(appleEl) {
+        if (!gameActive) return;
 
         // 增加分数
         count++;
         counterEl.textContent = count;
 
-        // 角色动画
-        playerEl.classList.add('eat');
-        setTimeout(() => playerEl.classList.remove('eat'), 300);
+        // 苹果消失动画
+        appleEl.classList.add('eaten');
 
-        // 长高
-        if (playerHeight < MAX_HEIGHT) {
-          playerHeight = Math.min(playerHeight + HEIGHT_INCREMENT, MAX_HEIGHT);
-          playerEl.style.height = playerHeight + '%';
-          // 更新垂直位置（基于底部）
-          playerEl.style.top = (GROUND_Y - playerHeight / 2) + '%';
-
-          // 更新高度指示条
-          const heightPercent = ((playerHeight - MIN_HEIGHT) / (MAX_HEIGHT - MIN_HEIGHT)) * 100;
-          heightFill.style.height = heightPercent + '%';
-
-          // 根据高度改变表情，小女孩形象
-          if (playerHeight < 30) {
-            playerEl.textContent = '👧';
-          } else if (playerHeight < 50) {
-            playerEl.textContent = '👧';
-          } else if (playerHeight < 70) {
-            playerEl.textContent = '👧‍♀️';
-          } else {
-            playerEl.textContent = '👩';
-          }
-        }
-
-        // 在随机位置生成新苹果
+        // 移除苹果
         setTimeout(() => {
-          if (gameActive) {
-            apples.push(createApple());
+          appleEl.remove();
+          const index = apples.indexOf(appleEl);
+          if (index > -1) {
+            apples.splice(index, 1);
           }
+          // 生成新苹果
+          createApple();
         }, 300);
+
+        // 显示得分弹出
+        showScorePopup(appleEl);
       }
 
-      // 更新玩家位置
-      function updatePlayer() {
+      // 显示得分弹出
+      function showScorePopup(appleEl) {
+        const rect = appleEl.getBoundingClientRect();
+        const areaRect = gameArea.getBoundingClientRect();
+
+        const popup = document.createElement('div');
+        popup.className = 'score-popup';
+        popup.textContent = '+1';
+        popup.style.left = (rect.left - areaRect.left + 20) + 'px';
+        popup.style.top = (rect.top - areaRect.top) + 'px';
+
+        gameArea.appendChild(popup);
+
+        setTimeout(() => popup.remove(), 800);
+      }
+
+      // 处理点击
+      function handleClick(e) {
         if (!gameActive) return;
 
-        const gameAreaRect = gameArea.getBoundingClientRect();
-        const moveAmountX = (MOVE_SPEED / gameAreaRect.width) * 100;
-        const moveAmountY = (MOVE_SPEED_Y / gameAreaRect.height) * 100;
-
-        // 左右移动
-        if (keysPressed['ArrowLeft'] || keysPressed['a'] || keysPressed['A']) {
-          playerX = Math.max(moveAmountX, playerX - moveAmountX);
-        }
-        if (keysPressed['ArrowRight'] || keysPressed['d'] || keysPressed['D']) {
-          playerX = Math.min(100 - moveAmountX, playerX + moveAmountX);
-        }
-
-        // 上下移动
-        if (keysPressed['ArrowUp'] || keysPressed['w'] || keysPressed['W']) {
-          playerY = Math.max(moveAmountY + playerHeight/2, playerY - moveAmountY);
-        }
-        if (keysPressed['ArrowDown'] || keysPressed['s'] || keysPressed['S']) {
-          playerY = Math.min(GROUND_Y - playerHeight/2, playerY + moveAmountY);
-        }
-
-        playerEl.style.left = playerX + '%';
-        playerEl.style.top = playerY + '%';
-      }
-
-      // 游戏循环
-      function gameLoop() {
-        if (!gameActive) return;
-
-        updatePlayer();
-        checkCollision();
-
-        requestAnimationFrame(gameLoop);
-      }
-
-      // 处理按键
-      function handleKeyDown(e) {
-        if (!gameActive) return;
-
-        const validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'W', 'A', 'S', 'D'];
-        if (validKeys.includes(e.key)) {
-          keysPressed[e.key] = true;
-          e.preventDefault();
-        }
-      }
-
-      // 处理按键释放
-      function handleKeyUp(e) {
-        delete keysPressed[e.key];
+        // 检查是否点击到苹果（已经在苹果的点击事件处理了）
+        // 这里可以添加点击特效等
       }
 
       // 开始游戏
@@ -704,34 +550,16 @@
         count = 0;
         timeLeft = 10;
         gameActive = true;
-        playerX = 50;
-        playerY = GROUND_Y - playerHeight / 2;
-        playerHeight = MIN_HEIGHT;
 
         counterEl.textContent = '0';
         timerEl.textContent = '10';
         timerEl.classList.remove('warning');
-
-        // 重置角色
-        playerEl.style.left = '50%';
-        playerEl.style.top = playerY + '%';
-        playerEl.style.height = playerHeight + '%';
-        playerEl.style.bottom = 'auto';
-        playerEl.style.transform = 'translate(-50%, 50%) scaleX(-1)';
-        playerEl.textContent = '💃';
-        playerEl.classList.add('dancing');
-
-        // 重置高度指示条
-        heightFill.style.height = '10%';
 
         // 显示页面
         showPage(gamePage);
 
         // 初始化苹果
         initApples();
-
-        // 启动游戏循环
-        gameLoop();
 
         // 倒计时
         timerInterval = setInterval(() => {
@@ -805,63 +633,8 @@
         showPage(startPage);
       });
 
-      // 键盘事件
-      document.addEventListener('keydown', handleKeyDown);
-      document.addEventListener('keyup', handleKeyUp);
-
-      // 触摸事件（手机端支持滑动移动）
-      let touchStartX = 0;
-      let touchStartY = 0;
-
-      document.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-      }, { passive: true });
-
-      document.addEventListener('touchmove', (e) => {
-        if (!gameActive) return;
-
-        const touchX = e.touches[0].clientX;
-        const touchY = e.touches[0].clientY;
-        const dx = touchX - touchStartX;
-        const dy = touchY - touchStartY;
-
-        // 根据滑动方向设置按键状态
-        keysPressed['ArrowLeft'] = dx < -20;
-        keysPressed['ArrowRight'] = dx > 20;
-        keysPressed['ArrowUp'] = dy < -20;
-        keysPressed['ArrowDown'] = dy > 20;
-
-        e.preventDefault();
-      }, { passive: false });
-
-      document.addEventListener('touchend', (e) => {
-        // 清除所有移动按键
-        delete keysPressed['ArrowLeft'];
-        delete keysPressed['ArrowRight'];
-        delete keysPressed['ArrowUp'];
-        delete keysPressed['ArrowDown'];
-
-        // 检测点击位置是否有苹果（触摸点击）
-        if (!gameActive) return;
-
-        const touch = e.changedTouches[0];
-        const clickX = touch.clientX;
-        const clickY = touch.clientY;
-
-        // 检测是否点击到苹果
-        for (let i = apples.length - 1; i >= 0; i--) {
-          const apple = apples[i];
-          const rect = apple.element.getBoundingClientRect();
-
-          if (clickX >= rect.left && clickX <= rect.right &&
-              clickY >= rect.top && clickY <= rect.bottom) {
-            // 吃到苹果
-            eatApple(i);
-            break;
-          }
-        }
-      }, { passive: true });
+      // 游戏区域点击（用于检测漏点的苹果）
+      gameArea.addEventListener('click', handleClick);
     </script>
   </body>
 </html>
