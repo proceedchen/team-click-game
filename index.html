@@ -500,10 +500,52 @@
         apples.forEach(a => a.remove());
         apples = [];
 
-        // 创建初始苹果
-        for (let i = 0; i < 5; i++) {
+        // 确保至少有1个红苹果
+        createApple(true);
+
+        // 再创建几个随机水果
+        for (let i = 0; i < 4; i++) {
           setTimeout(() => createApple(), i * 100);
         }
+      }
+
+      // 创建水果（确保有苹果）
+      function createApple(forceApple = false) {
+        if (apples.length >= MAX_APPLES) return;
+
+        let fruit;
+        if (forceApple) {
+          // 强制创建红苹果
+          fruit = FRUITS[0]; // 苹果
+        } else {
+          // 随机选择一个水果
+          fruit = FRUITS[Math.floor(Math.random() * FRUITS.length)];
+        }
+
+        const apple = document.createElement('div');
+        apple.className = 'apple';
+        apple.textContent = fruit.emoji;
+        apple.dataset.score = fruit.score;
+
+        // 随机位置
+        const padding = 50;
+        const areaWidth = gameArea.clientWidth - padding * 2;
+        const areaHeight = gameArea.clientHeight - padding * 2;
+
+        const x = Math.random() * areaWidth + padding;
+        const y = Math.random() * areaHeight + padding;
+
+        apple.style.left = x + 'px';
+        apple.style.top = y + 'px';
+
+        // 点击事件
+        apple.addEventListener('click', (e) => {
+          e.stopPropagation();
+          eatApple(apple);
+        });
+
+        gameArea.appendChild(apple);
+        apples.push(apple);
       }
 
       // 吃掉苹果
@@ -534,8 +576,14 @@
           if (index > -1) {
             apples.splice(index, 1);
           }
-          // 生成新水果
-          createApple();
+
+          // 检查当前是否还有苹果，没有则强制生成苹果
+          const hasApple = apples.some(a => a.dataset.score === 'true');
+          if (!hasApple) {
+            createApple(true); // 强制生成红苹果
+          } else {
+            createApple(); // 正常生成随机水果
+          }
         }, 300);
       }
 
