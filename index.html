@@ -707,17 +707,17 @@
       }
 
       // 结束游戏
-      function endGame() {
+      async function endGame() {
         gameActive = false;
         clearInterval(timerInterval);
 
         finalScoreEl.textContent = count;
 
-        // 提交分数
-        submitScore(count);
+        // 先提交分数到服务器，等待完成
+        await submitScore(count);
 
-        // 获取排行榜
-        loadLeaderboard();
+        // 然后获取排行榜（确保数据已存储）
+        await loadLeaderboard();
 
         showPage(resultPage);
       }
