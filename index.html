@@ -613,6 +613,11 @@
         } else {
           // 其他水果，显示无效提示
           showScorePopup(appleEl, '❌');
+
+          // 点击非苹果时，也要生成新水果补充
+          const k = Math.floor(Math.random() * 4); // 0-3
+          const m = Math.floor(Math.random() * 3); // 0-2
+          createOtherFruits(1 + k + m);
         }
 
         // 水果消失动画
@@ -642,7 +647,10 @@
           // 确保至少有1个苹果
           const hasApple = apples.some(a => a.dataset.score === 'true');
           if (!hasApple) {
-            createApple(true);
+            createApple(true); // 确保至少有一个苹果
+            // 再额外生成一些苹果，避免很快又被吃完
+            const extra = Math.floor(Math.random() * 3); // 0-2
+            createMultipleApples(extra);
           }
         }, 300);
       }
