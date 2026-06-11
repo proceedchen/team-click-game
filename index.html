@@ -597,6 +597,17 @@
         }
       }
 
+      // 确保至少有1个苹果
+      function ensureAtLeastOneApple() {
+        const hasApple = apples.some(a => a.dataset.score === 'true');
+        if (!hasApple) {
+          createApple(true); // 确保至少有一个苹果
+          // 再额外生成一些苹果，避免很快又被吃完
+          const extra = Math.floor(Math.random() * 3); // 0-2
+          createMultipleApples(extra);
+        }
+      }
+
       // 吃掉苹果
       function eatApple(appleEl) {
         if (!gameActive) return;
@@ -644,14 +655,8 @@
             removeOneOtherFruit();
           }
 
-          // 确保至少有1个苹果
-          const hasApple = apples.some(a => a.dataset.score === 'true');
-          if (!hasApple) {
-            createApple(true); // 确保至少有一个苹果
-            // 再额外生成一些苹果，避免很快又被吃完
-            const extra = Math.floor(Math.random() * 3); // 0-2
-            createMultipleApples(extra);
-          }
+          // 确保至少有1个苹果（无论点击了什么水果都需要检查）
+          ensureAtLeastOneApple();
         }, 300);
       }
 
