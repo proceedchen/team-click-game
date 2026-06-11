@@ -413,8 +413,18 @@
 
       // 苹果数组
       let apples = [];
-      const MAX_APPLES = 8;
-      const APPLE_TYPES = ['🍎'];
+      const MAX_APPLES = 10;
+      // 苹果会得分，其他水果不得分
+      const FRUITS = [
+        { emoji: '🍎', score: true },
+        { emoji: '🍌', score: false },
+        { emoji: '🍊', score: false },
+        { emoji: '🍇', score: false },
+        { emoji: '🍓', score: false },
+        { emoji: '🍒', score: false },
+        { emoji: '🍍', score: false },
+        { emoji: '🥝', score: false }
+      ];
 
       // 页面切换
       function showPage(page) {
@@ -451,13 +461,17 @@
         }
       }
 
-      // 创建苹果
+      // 创建水果
       function createApple() {
         if (apples.length >= MAX_APPLES) return;
 
+        // 随机选择一个水果
+        const fruit = FRUITS[Math.floor(Math.random() * FRUITS.length)];
+
         const apple = document.createElement('div');
         apple.className = 'apple';
-        apple.textContent = APPLE_TYPES[Math.floor(Math.random() * APPLE_TYPES.length)];
+        apple.textContent = fruit.emoji;
+        apple.dataset.score = fruit.score; // 记录是否得分
 
         // 随机位置（保证在游戏区域內）
         const padding = 50;
@@ -496,36 +510,44 @@
       function eatApple(appleEl) {
         if (!gameActive) return;
 
-        // 增加分数
-        count++;
-        counterEl.textContent = count;
+        // 检查是否是苹果（得分）还是其他水果（不得分）
+        const isApple = appleEl.dataset.score === 'true';
 
-        // 苹果消失动画
+        if (isApple) {
+          // 增加分数
+          count++;
+          counterEl.textContent = count;
+          // 显示得分弹出
+          showScorePopup(appleEl, '+1');
+        } else {
+          // 其他水果，显示无效提示
+          showScorePopup(appleEl, '❌');
+        }
+
+        // 水果消失动画
         appleEl.classList.add('eaten');
 
-        // 移除苹果
+        // 移除水果
         setTimeout(() => {
           appleEl.remove();
           const index = apples.indexOf(appleEl);
           if (index > -1) {
             apples.splice(index, 1);
           }
-          // 生成新苹果
+          // 生成新水果
           createApple();
         }, 300);
-
-        // 显示得分弹出
-        showScorePopup(appleEl);
       }
 
       // 显示得分弹出
-      function showScorePopup(appleEl) {
+      function showScorePopup(appleEl, text = '+1') {
         const rect = appleEl.getBoundingClientRect();
         const areaRect = gameArea.getBoundingClientRect();
 
         const popup = document.createElement('div');
         popup.className = 'score-popup';
-        popup.textContent = '+1';
+        popup.textContent = text;
+        popup.style.color = text === '+1' ? '#ff6b6b' : '#888';
         popup.style.left = (rect.left - areaRect.left + 20) + 'px';
         popup.style.top = (rect.top - areaRect.top) + 'px';
 
