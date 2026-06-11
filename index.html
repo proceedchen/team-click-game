@@ -625,10 +625,9 @@
           // 其他水果，显示无效提示
           showScorePopup(appleEl, '❌');
 
-          // 点击非苹果时，也要生成新水果补充
-          const k = Math.floor(Math.random() * 4); // 0-3
-          const m = Math.floor(Math.random() * 3); // 0-2
-          createOtherFruits(1 + k + m);
+          // 点击非苹果时，生成少量其他水果补充（比点击苹果时少，避免干扰过多）
+          const n = Math.floor(Math.random() * 2); // 0-1
+          createOtherFruits(n);
         }
 
         // 水果消失动画
