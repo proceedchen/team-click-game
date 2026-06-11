@@ -1,5 +1,6 @@
-const UPSTASH_URL = 'https://rare-krill-145916.upstash.io';
-const UPSTASH_TOKEN = 'gQAAAAAAAjn8AAIgcDE3ZmEzNDM4YjY3YTg0Y2QyOWE3OGM1MmU2NWY2N2IxOA';
+// 从环境变量读取（需要在 Cloudflare 后台配置）
+// 注意：api/submit-score.ts 使用 process.env（Vercel）
+// cloudflare-worker 使用 env（Cloudflare Workers）
 
 // HTML 内容
 const HTML_CONTENT = `<!DOCTYPE html>
@@ -149,6 +150,17 @@ document.addEventListener('touchend',(e)=>{if(!gameActive)return;const touchEndX
 
 export default {
   async fetch(request, env, ctx) {
+    // 从环境变量读取配置（Cloudflare Workers 通过 env 参数注入）
+    const UPSTASH_URL = env.UPSTASH_URL;
+    const UPSTASH_TOKEN = env.UPSTASH_TOKEN;
+
+    if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+      return new Response(JSON.stringify({ error: 'Missing environment configuration' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const url = new URL(request.url);
     const path = url.pathname;
 

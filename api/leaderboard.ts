@@ -1,5 +1,10 @@
-const UPSTASH_URL = 'https://rare-krill-145916.upstash.io';
-const UPSTASH_TOKEN = 'gQAAAAAAAjn8AAIgcDE3ZmEzNDM4YjY3YTg0Y2QyOWE3OGM1MmU2NWY2N2IxOA';
+const UPSTASH_URL = process.env.UPSTASH_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_TOKEN;
+
+// 校验环境变量
+if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+  throw new Error('Missing UPSTASH_URL or UPSTASH_TOKEN environment variable');
+}
 
 export async function GET() {
   try {
